@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cvbarros/go-teamcity/teamcity"
+	"github.com/64mb/go-teamcity/teamcity"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -2,7 +2,7 @@
 PROJECT_NAME = go-teamcity
 
 # Makefile parameters.
-TAG ?= $(shell git describe)
+TAG ?= $(shell git describe || echo master)
 
 # General.
 SHELL = /bin/bash
@@ -18,7 +18,7 @@ CONTAINER_NAME = teamcity_server
 INTEGRATION_TEST_DIR = integration_tests
 TEAMCITY_DATA_DIR = $(INTEGRATION_TEST_DIR)/data_dir
 TEAMCITY_HOST = http://localhost:8112
-TEAMCITY_VERSION ?= "2019.2.2"
+TEAMCITY_VERSION ?= "2022.04.5"
 GO111MODULE ?= "on"
 
 default: build
@@ -33,7 +33,7 @@ help: # Display help
 .PHONY: build
 build: ## Build the project for the current platform
 	mkdir -p $(BUILD_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BUILD_DIR)/$(PROJECT_NAME)-$(TAG)-$(GOOS)-$(GOARCH)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build  -C ./teamcity -o ../$(BUILD_DIR)/$(PROJECT_NAME)-$(TAG)-$(GOOS)-$(GOARCH)
 
 .PHONY: ci
 ci: test ## Run all the CI targets
@@ -73,4 +73,4 @@ dist: $(PLATFORMS) ## Package the project for all available platforms
 .PHONY: $(PLATFORMS)
 $(PLATFORMS): # Build the project for all available platforms
 	mkdir -p $(BUILD_DIR)
-	GOOS=$(OS) GOARCH=$(GOARCH) go build -o $(BUILD_DIR)/$(PROJECT_NAME)-$(TAG)-$(OS)-$(GOARCH)
+	GOOS=$(OS) GOARCH=$(GOARCH) go build -C ./teamcity -o ../$(BUILD_DIR)/$(PROJECT_NAME)-$(TAG)-$(OS)-$(GOARCH)
