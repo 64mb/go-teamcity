@@ -33,7 +33,7 @@ help: # Display help
 .PHONY: build
 build: ## Build the project for the current platform
 	mkdir -p $(BUILD_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build  -C ./teamcity -o ../$(BUILD_DIR)/$(PROJECT_NAME)-$(TAG)-$(GOOS)-$(GOARCH)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o ./$(BUILD_DIR)/$(PROJECT_NAME)-$(TAG)-$(GOOS)-$(GOARCH) .
 
 .PHONY: ci
 ci: test ## Run all the CI targets

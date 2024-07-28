@@ -25,14 +25,14 @@ var ParameterTypes = struct {
 	EnvironmentVariable: envVarParamType,
 }
 
-//Parameters is a strongly-typed collection of "Parameter" suitable for serialization
+// Parameters is a strongly-typed collection of "Parameter" suitable for serialization
 type Parameters struct {
 	Count int32        `json:"count,omitempty" xml:"count"`
 	Href  string       `json:"href,omitempty" xml:"href"`
 	Items []*Parameter `json:"property,omitempty"`
 }
 
-//Parameter represents a project or build configuration parameter that may be defined as "configuration", "system" or "environment variable"
+// Parameter represents a project or build configuration parameter that may be defined as "configuration", "system" or "environment variable"
 type Parameter struct {
 	Inherited bool `json:"inherited,omitempty" xml:"inherited"`
 
@@ -41,9 +41,11 @@ type Parameter struct {
 	Value string `json:"value" xml:"value"`
 
 	Type string `json:"-"`
+
+	Spec string `json:"-"`
 }
 
-//NewParametersEmpty returns an empty collection of Parameters
+// NewParametersEmpty returns an empty collection of Parameters
 func NewParametersEmpty() *Parameters {
 	return &Parameters{
 		Count: 0,
@@ -60,8 +62,8 @@ func NewParameters(items ...*Parameter) *Parameters {
 	}
 }
 
-//NewParameter creates a new instance of a parameter with the given type
-func NewParameter(t string, name string, value string) (*Parameter, error) {
+// NewParameter creates a new instance of a parameter with the given type
+func NewParameter(t string, name string, value string, spec string) (*Parameter, error) {
 	if name == "" {
 		return nil, fmt.Errorf("name is required")
 	}
@@ -73,17 +75,18 @@ func NewParameter(t string, name string, value string) (*Parameter, error) {
 		Type:  string(t),
 		Name:  name,
 		Value: value,
+		Spec:  spec,
 	}, nil
 }
 
-//MarshalJSON implements JSON serialization for Parameter
+// MarshalJSON implements JSON serialization for Parameter
 func (p *Parameter) MarshalJSON() ([]byte, error) {
 	out := p.Property()
 
 	return json.Marshal(out)
 }
 
-//UnmarshalJSON implements JSON deserialization for Parameter
+// UnmarshalJSON implements JSON deserialization for Parameter
 func (p *Parameter) UnmarshalJSON(data []byte) error {
 	var aux Property
 	if err := json.Unmarshal(data, &aux); err != nil {
@@ -106,10 +109,13 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 	}
 	p.Value = aux.Value
 	p.Type = paramType
+	if aux.Type != nil && aux.Type.RawValue != "" {
+		p.Spec = aux.Type.RawValue
+	}
 	return nil
 }
 
-//Properties convert a Parameters collection to a Properties collection
+// Properties convert a Parameters collection to a Properties collection
 func (p *Parameters) Properties() *Properties {
 	out := NewPropertiesEmpty()
 	for _, i := range p.Items {
@@ -118,7 +124,7 @@ func (p *Parameters) Properties() *Properties {
 	return out
 }
 
-//Property converts a Parameter instance to a Property
+// Property converts a Parameter instance to a Property
 func (p *Parameter) Property() *Property {
 	out := &Property{
 		Name:  fmt.Sprintf("%s%s", paramPrefixByType[p.Type], p.Name),
@@ -128,11 +134,17 @@ func (p *Parameter) Property() *Property {
 	if p.Inherited {
 		out.Inherited = NewBool(p.Inherited)
 	}
+
+	if p.Spec != "" {
+		out.Type = &Type{
+			RawValue: p.Spec,
+		}
+	}
 	return out
 }
 
 // AddOrReplaceValue will update a parameter value if it exists, or add if it doesnt
-func (p *Parameters) AddOrReplaceValue(t string, n string, v string) {
+func (p *Parameters) AddOrReplaceValue(t string, n string, v string, s string) {
 	for _, elem := range p.Items {
 		if elem == nil {
 			continue
@@ -143,13 +155,13 @@ func (p *Parameters) AddOrReplaceValue(t string, n string, v string) {
 			return
 		}
 	}
-	param, _ := NewParameter(t, n, v)
+	param, _ := NewParameter(t, n, v, s)
 	p.Add(param)
 }
 
 // AddOrReplaceParameter will update a parameter value if another parameter with the same name exists. It won't replace the Parameter struct within the Parameters collection.
 func (p *Parameters) AddOrReplaceParameter(param *Parameter) {
-	p.AddOrReplaceValue(param.Type, param.Name, param.Value)
+	p.AddOrReplaceValue(param.Type, param.Name, param.Value, param.Spec)
 }
 
 // Add a new parameter to this collection
@@ -166,7 +178,7 @@ func (p *Parameters) Concat(source *Parameters) *Parameters {
 	return p
 }
 
-//Remove a parameter if it exists in the collection
+// Remove a parameter if it exists in the collection
 func (p *Parameters) Remove(t string, n string) {
 	removed := -1
 	for i := range p.Items {
@@ -181,7 +193,7 @@ func (p *Parameters) Remove(t string, n string) {
 	}
 }
 
-//NonInherited returns a new Parameters collection filtering out all inherited parameters
+// NonInherited returns a new Parameters collection filtering out all inherited parameters
 func (p *Parameters) NonInherited() (po *Parameters) {
 	po = NewParametersEmpty()
 	for _, c := range p.Items {
@@ -192,7 +204,7 @@ func (p *Parameters) NonInherited() (po *Parameters) {
 	return po
 }
 
-//GetOk returns a Parameter by it's type/name combination
+// GetOk returns a Parameter by it's type/name combination
 func (p *Parameters) GetOk(t string, n string) (out *Parameter, ok bool) {
 	for i := range p.Items {
 		if p.Items[i].Name == n && p.Items[i].Type == t {

@@ -31,7 +31,7 @@ func (suite *SuiteBuildTypeSteps) SetupSuite() {
 	echo "World, Hello!
 	export HELLO_WORLD=1
 	`
-	suite.StepCmdLineScript, _ = teamcity.NewStepCommandLineScript("step_exe", script)
+	suite.StepCmdLineScript, _ = teamcity.NewStepCommandLineScript("step_exe", script, nil)
 	suite.StepOctopusPushPackage, _ = teamcity.NewStepOctopusPushPackage("Octopus package")
 	suite.StepOctopusCreateRelease, _ = teamcity.NewStepOctopusCreateRelease("Octopus Release")
 }

@@ -141,8 +141,8 @@ func TestProject_UpdateParameters(t *testing.T) {
 
 	//Update some fields
 	props := teamcity.NewParametersEmpty()
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1")
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1", "")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2", "")
 	actual.Parameters = props
 
 	updated, err := sut.Update(actual)
@@ -162,8 +162,8 @@ func TestProject_UpdateParametersWithRemoval(t *testing.T) {
 	actual, err := sut.GetByID(created.ID) //Refresh
 
 	params := teamcity.NewParametersEmpty()
-	params.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1")
-	params.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2")
+	params.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1", "")
+	params.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2", "")
 	actual.Parameters = params
 	actual, err = sut.Update(actual)
 

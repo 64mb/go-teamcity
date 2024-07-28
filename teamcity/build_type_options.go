@@ -1,13 +1,16 @@
 package teamcity
 
-//DefaultBuildNumberFormat is TC's default build number format setting for build configurations
+// DefaultBuildNumberFormat is TC's default build number format setting for build configurations
 const DefaultBuildNumberFormat = "%build.counter%"
 
-//DefaultBuildConfigurationType is default build configuration type setting for build configurations.
-//Other possible values for this setting would be "DEPLOYMENT" or "COMPOSITE"
+// DefaultBuildConfigurationType is default build configuration type setting for build configurations.
+// Other possible values for this setting would be "DEPLOYMENT" or "COMPOSITE"
 const DefaultBuildConfigurationType = "REGULAR"
 
-//BuildTypeOptions represents settings for a Build Configuration
+// AUTO, MANUAL, ON_AGENT, ON_SERVER
+const DefaultCheckoutMode = "AUTO"
+
+// BuildTypeOptions represents settings for a Build Configuration
 type BuildTypeOptions struct {
 	AllowPersonalBuildTriggering bool     `prop:"allowPersonalBuildTriggering" force:""`
 	ArtifactRules                []string `prop:"artifactRules" separator:"\n"`
@@ -15,6 +18,7 @@ type BuildTypeOptions struct {
 	EnableStatusWidget           bool     `prop:"allowExternalStatus"`
 	BuildCounter                 int      `prop:"buildNumberCounter"`
 	CleanBuild                   bool     `prop:"cleanBuild"`
+	CheckoutMode                 string   `prop:"checkoutMode"`
 	BuildNumberFormat            string   `prop:"buildNumberPattern"`
 	BuildConfigurationType       string   `prop:"buildConfigurationType"`
 	MaxSimultaneousBuilds        int      `prop:"maximumNumberOfBuilds"`
@@ -22,7 +26,7 @@ type BuildTypeOptions struct {
 	BuildTypeID                  int
 }
 
-//NewBuildTypeOptionsWithDefaults returns a new instance of default settings, the same as presented in the TeamCity UI when a new build configuration is created.
+// NewBuildTypeOptionsWithDefaults returns a new instance of default settings, the same as presented in the TeamCity UI when a new build configuration is created.
 func NewBuildTypeOptionsWithDefaults() *BuildTypeOptions {
 	return &BuildTypeOptions{
 		AllowPersonalBuildTriggering: true,
@@ -34,10 +38,11 @@ func NewBuildTypeOptionsWithDefaults() *BuildTypeOptions {
 		BuildCounter:                 1,
 		CleanBuild:                   false,
 		BuildNumberFormat:            DefaultBuildNumberFormat,
+		CheckoutMode:                 DefaultCheckoutMode,
 	}
 }
 
-//NewBuildTypeOptionsTemplate returns a new instance of settings for a BuildType Template.
+// NewBuildTypeOptionsTemplate returns a new instance of settings for a BuildType Template.
 func NewBuildTypeOptionsTemplate() *BuildTypeOptions {
 	return &BuildTypeOptions{
 		AllowPersonalBuildTriggering: true,

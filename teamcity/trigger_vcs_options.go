@@ -20,7 +20,7 @@ const (
 // TriggerVcsOptions represents optional settings for a VCS Trigger type.
 type TriggerVcsOptions struct {
 	enableQueueOptimization bool
-	perCheckinTriggering    bool `prop:"branch"`
+	perCheckinTriggering    bool
 
 	GroupUserCheckins    bool
 	QuietPeriodMode      VcsTriggerQuietPeriodMode
@@ -30,8 +30,8 @@ type TriggerVcsOptions struct {
 // NewTriggerVcsOptions initialize a TriggerVcsOptions instance with same defaults as TeamCity UI
 //
 // Defaults:
-//	- GroupCheckins = false
-//	- EnableQueueOptimization = false
+//   - GroupCheckins = false
+//   - EnableQueueOptimization = false
 func NewTriggerVcsOptions(mode VcsTriggerQuietPeriodMode, seconds int) (*TriggerVcsOptions, error) {
 	quietPeriodInSeconds := 0
 	if mode == QuietPeriodCustom {
@@ -43,19 +43,19 @@ func NewTriggerVcsOptions(mode VcsTriggerQuietPeriodMode, seconds int) (*Trigger
 
 	return &TriggerVcsOptions{
 		perCheckinTriggering:    false,
-		enableQueueOptimization: true,
+		enableQueueOptimization: false,
 		GroupUserCheckins:       false,
 		QuietPeriodMode:         mode,
 		QuietPeriodInSeconds:    quietPeriodInSeconds,
 	}, nil
 }
 
-//QueueOptimization gets the value of enableQueueOptimization property
+// QueueOptimization gets the value of enableQueueOptimization property
 func (o *TriggerVcsOptions) QueueOptimization() bool {
 	return o.enableQueueOptimization
 }
 
-//SetQueueOptimization toggles allowing the server to replace an already started build or a more recently queued one if new changes are detected. If set to true, PerCheckinTriggering will be disabled.
+// SetQueueOptimization toggles allowing the server to replace an already started build or a more recently queued one if new changes are detected. If set to true, PerCheckinTriggering will be disabled.
 func (o *TriggerVcsOptions) SetQueueOptimization(enable bool) {
 	o.enableQueueOptimization = enable
 	if enable {
@@ -63,7 +63,7 @@ func (o *TriggerVcsOptions) SetQueueOptimization(enable bool) {
 	}
 }
 
-//PerCheckinTriggering gets the value of perCheckinTriggering property
+// PerCheckinTriggering gets the value of perCheckinTriggering property
 func (o *TriggerVcsOptions) PerCheckinTriggering() bool {
 	return o.perCheckinTriggering
 }
@@ -97,10 +97,16 @@ func (o *TriggerVcsOptions) properties() *Properties {
 	if o.enableQueueOptimization {
 		p := NewProperty("enableQueueOptimization", "true")
 		props = append(props, p)
+	} else {
+		p := NewProperty("enableQueueOptimization", "false")
+		props = append(props, p)
 	}
 
 	if o.perCheckinTriggering {
 		p := NewProperty("perCheckinTriggering", "true")
+		props = append(props, p)
+	} else {
+		p := NewProperty("perCheckinTriggering", "false")
 		props = append(props, p)
 	}
 
@@ -141,18 +147,14 @@ func (p *Properties) triggerVcsOptions() (*TriggerVcsOptions, error) {
 		if err != nil {
 			return nil, err
 		}
-		if v2 {
-			out.SetPerCheckinTriggering(v2)
-		}
+		out.SetPerCheckinTriggering(v2)
 	}
 	if v, ok := p.GetOk("enableQueueOptimization"); ok {
 		v2, err := strconv.ParseBool(v)
 		if err != nil {
 			return nil, err
 		}
-		if v2 {
-			out.SetQueueOptimization(v2)
-		}
+		out.SetQueueOptimization(v2)
 	}
 
 	return &out, nil

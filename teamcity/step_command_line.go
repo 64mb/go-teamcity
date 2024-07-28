@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-//StepCommandLine represents a a build step of type "CommandLine"
+// StepCommandLine represents a a build step of type "CommandLine"
 type StepCommandLine struct {
 	ID           string
 	Name         string
@@ -21,24 +21,43 @@ type StepCommandLine struct {
 	CommandParameters string
 	//ExecuteMode is the execute mode for the step. See StepExecuteMode for details.
 	ExecuteMode StepExecuteMode
+	// Docker Image
+	DockerImage string
+	// Docker Image Platform
+	DockerImagePlatform string
 }
 
-//NewStepCommandLineScript creates a command line build step that runs an inline platform-specific script.
-func NewStepCommandLineScript(name string, script string) (*StepCommandLine, error) {
+// NewStepCommandLineScript creates a command line build step that runs an inline platform-specific script.
+func NewStepCommandLineScript(name string, script string, props map[string]string) (*StepCommandLine, error) {
 	if script == "" {
 		return nil, errors.New("script is required")
 	}
 
+	dockerImage := ""
+	dockerImagePlatform := ""
+
+	v, ok := props["docker_image"]
+	if ok {
+		dockerImage = v
+	}
+
+	v, ok = props["docker_image_platform"]
+	if ok {
+		dockerImagePlatform = v
+	}
+
 	return &StepCommandLine{
-		Name:         name,
-		isExecutable: false,
-		stepType:     StepTypeCommandLine,
-		CustomScript: script,
-		ExecuteMode:  StepExecuteModeDefault,
+		Name:                name,
+		isExecutable:        false,
+		stepType:            StepTypeCommandLine,
+		CustomScript:        script,
+		ExecuteMode:         StepExecuteModeDefault,
+		DockerImage:         dockerImage,
+		DockerImagePlatform: dockerImagePlatform,
 	}, nil
 }
 
-//NewStepCommandLineExecutable creates a command line that invokes an external executable.
+// NewStepCommandLineExecutable creates a command line that invokes an external executable.
 func NewStepCommandLineExecutable(name string, executable string, args string) (*StepCommandLine, error) {
 	if executable == "" {
 		return nil, errors.New("executable is required")
@@ -54,17 +73,17 @@ func NewStepCommandLineExecutable(name string, executable string, args string) (
 	}, nil
 }
 
-//GetID is a wrapper implementation for ID field, to comply with Step interface
+// GetID is a wrapper implementation for ID field, to comply with Step interface
 func (s *StepCommandLine) GetID() string {
 	return s.ID
 }
 
-//GetName is a wrapper implementation for Name field, to comply with Step interface
+// GetName is a wrapper implementation for Name field, to comply with Step interface
 func (s *StepCommandLine) GetName() string {
 	return s.Name
 }
 
-//Type returns the step type, in this case "StepTypeCommandLine".
+// Type returns the step type, in this case "StepTypeCommandLine".
 func (s *StepCommandLine) Type() BuildStepType {
 	return StepTypeCommandLine
 }
@@ -84,6 +103,14 @@ func (s *StepCommandLine) properties() *Properties {
 		props.AddOrReplaceValue("use.custom.script", "true")
 	}
 
+	if s.DockerImage != "" {
+		props.AddOrReplaceValue("plugin.docker.imageId", s.DockerImage)
+	}
+
+	if s.DockerImagePlatform != "" {
+		props.AddOrReplaceValue("plugin.docker.imagePlatform", s.DockerImagePlatform)
+	}
+
 	return props
 }
 
@@ -96,13 +123,13 @@ func (s *StepCommandLine) serializable() *stepJSON {
 	}
 }
 
-//MarshalJSON implements JSON serialization for StepCommandLine
+// MarshalJSON implements JSON serialization for StepCommandLine
 func (s *StepCommandLine) MarshalJSON() ([]byte, error) {
 	out := s.serializable()
 	return json.Marshal(out)
 }
 
-//UnmarshalJSON implements JSON deserialization for StepCommandLine
+// UnmarshalJSON implements JSON deserialization for StepCommandLine
 func (s *StepCommandLine) UnmarshalJSON(data []byte) error {
 	var aux stepJSON
 	if err := json.Unmarshal(data, &aux); err != nil {
@@ -133,6 +160,12 @@ func (s *StepCommandLine) UnmarshalJSON(data []byte) error {
 
 	if v, ok := props.GetOk("teamcity.step.mode"); ok {
 		s.ExecuteMode = StepExecuteMode(v)
+	}
+	if v, ok := props.GetOk("plugin.docker.imageId"); ok {
+		s.DockerImage = v
+	}
+	if v, ok := props.GetOk("plugin.docker.imagePlatform"); ok {
+		s.DockerImagePlatform = v
 	}
 	return nil
 }

@@ -12,7 +12,7 @@ import (
 
 func Test_ParameterConfiguration_Serialization(t *testing.T) {
 	assert := assert.New(t)
-	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.Configuration, "param1", "value1")
+	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.Configuration, "param1", "value1", "")
 	jsonBytes, err := sut.MarshalJSON()
 
 	require.NoError(t, err)
@@ -29,7 +29,7 @@ func Test_ParameterConfiguration_Serialization(t *testing.T) {
 
 func Test_ParameterSystem_Serialization(t *testing.T) {
 	assert := assert.New(t)
-	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.System, "param1", "value1")
+	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.System, "param1", "value1", "")
 	jsonBytes, err := sut.MarshalJSON()
 
 	require.NoError(t, err)
@@ -47,7 +47,7 @@ func Test_ParameterSystem_Serialization(t *testing.T) {
 
 func Test_ParameterEnvironmentVariable_Serialization(t *testing.T) {
 	assert := assert.New(t)
-	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.EnvironmentVariable, "param1", "value1")
+	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.EnvironmentVariable, "param1", "value1", "")
 	jsonBytes, err := sut.MarshalJSON()
 
 	require.NoError(t, err)
@@ -66,9 +66,9 @@ func Test_ParameterEnvironmentVariable_Serialization(t *testing.T) {
 func Test_ParameterCollection_Serialization(t *testing.T) {
 	sut := teamcity.NewParametersEmpty()
 
-	sut.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "config", "value_config")
-	sut.AddOrReplaceValue(teamcity.ParameterTypes.System, "system", "value_system")
-	sut.AddOrReplaceValue(teamcity.ParameterTypes.EnvironmentVariable, "env", "value_env")
+	sut.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "config", "value_config", "")
+	sut.AddOrReplaceValue(teamcity.ParameterTypes.System, "system", "value_system", "")
+	sut.AddOrReplaceValue(teamcity.ParameterTypes.EnvironmentVariable, "env", "value_env", "")
 
 	jsonBytes, err := json.Marshal(sut)
 	require.NoError(t, err)
@@ -77,19 +77,19 @@ func Test_ParameterCollection_Serialization(t *testing.T) {
 
 func Test_ParameterConvertToProperty(t *testing.T) {
 	assert := assert.New(t)
-	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.Configuration, "name", "value_config")
+	sut, _ := teamcity.NewParameter(teamcity.ParameterTypes.Configuration, "name", "value_config", "")
 	actual := sut.Property()
 
 	assert.Equal("name", actual.Name)
 	assert.Equal("value_config", actual.Value)
 
-	sut, _ = teamcity.NewParameter(teamcity.ParameterTypes.System, "name", "value_system")
+	sut, _ = teamcity.NewParameter(teamcity.ParameterTypes.System, "name", "value_system", "")
 	actual = sut.Property()
 
 	assert.Equal("system.name", actual.Name)
 	assert.Equal("value_system", actual.Value)
 
-	sut, _ = teamcity.NewParameter(teamcity.ParameterTypes.EnvironmentVariable, "name", "value_env")
+	sut, _ = teamcity.NewParameter(teamcity.ParameterTypes.EnvironmentVariable, "name", "value_env", "")
 	actual = sut.Property()
 
 	assert.Equal("env.name", actual.Name)

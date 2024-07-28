@@ -125,8 +125,8 @@ func TestBuildType_CreateWithParameters(t *testing.T) {
 	project := createTestProject(t, client, testBuildTypeProjectId)
 	bt, _ := teamcity.NewBuildType(project.ID, "testbuild")
 
-	bt.Parameters.AddOrReplaceValue(teamcity.ParameterTypes.EnvironmentVariable, "param1", "value1")
-	bt.Parameters.AddOrReplaceValue(teamcity.ParameterTypes.System, "param2", "value2")
+	bt.Parameters.AddOrReplaceValue(teamcity.ParameterTypes.EnvironmentVariable, "param1", "value1", "")
+	bt.Parameters.AddOrReplaceValue(teamcity.ParameterTypes.System, "param2", "value2", "")
 
 	sut := client.BuildTypes
 	created, err := sut.Create("", bt)
@@ -150,8 +150,8 @@ func TestBuildType_UpdateParameters(t *testing.T) {
 
 	//Update some fields
 	props := teamcity.NewParametersEmpty()
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1")
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1", "")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2", "")
 	actual.Parameters = props
 
 	updated, err := sut.Update(actual)
@@ -171,8 +171,8 @@ func TestBuildType_UpdateParametersWithRemoval(t *testing.T) {
 	actual, err := sut.GetByID(created.ID) //Refresh
 
 	props := teamcity.NewParametersEmpty()
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1")
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1", "")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2", "")
 	actual.Parameters = props
 	actual, err = sut.Update(actual)
 
@@ -194,7 +194,7 @@ func TestBuildType_GetParametersExcludeInherited(t *testing.T) {
 
 	//Add parameters to parent project
 	proj, _ := client.Projects.GetByID(testBuildTypeProjectId)
-	proj.Parameters.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "project_inherited", "value")
+	proj.Parameters.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "project_inherited", "value", "")
 	proj, _ = client.Projects.Update(proj)
 
 	pa.assertPropertyExists(proj.Parameters.Properties(), "project_inherited")
@@ -202,8 +202,8 @@ func TestBuildType_GetParametersExcludeInherited(t *testing.T) {
 	sut := client.BuildTypes
 	actual, err := sut.GetByID(created.ID) //Refresh
 	props := teamcity.NewParametersEmpty()
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1")
-	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param1", "value1", "")
+	props.AddOrReplaceValue(teamcity.ParameterTypes.Configuration, "param2", "value2", "")
 	actual.Parameters = props
 	actual, err = sut.Update(actual)
 

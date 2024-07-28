@@ -162,6 +162,10 @@ func (c *Client) TriggerService(buildTypeID string) *TriggerService {
 	return newTriggerService(buildTypeID, c.HTTPClient, c.commonBase.New())
 }
 
+func (c *Client) SlingClient() *sling.Sling {
+	return c.commonBase
+}
+
 // Validate tests if the client is properly configured and can be used
 func (c *Client) Validate() (bool, error) {
 	response, err := c.commonBase.Get("server").ReceiveSuccess(nil)
