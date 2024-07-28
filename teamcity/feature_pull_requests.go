@@ -32,7 +32,7 @@ func (f *FeaturePullRequests) SetID(value string) {
 
 // Type returns the "commit-status-publisher", the keyed-type for this build feature instance
 func (f *FeaturePullRequests) Type() string {
-	return "pull-requests"
+	return "pullRequests"
 }
 
 // VcsRootID returns the VCS Root ID that this build feature is associated with.
